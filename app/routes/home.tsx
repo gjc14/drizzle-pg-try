@@ -1,6 +1,6 @@
-import type { Route } from "./+types/home";
+import { auth } from "~/lib/auth.server";
 import { Welcome } from "../welcome/welcome";
-import { db } from "~/db/db.server";
+import type { Route } from "./+types/home";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -9,11 +9,31 @@ export function meta({}: Route.MetaArgs) {
   ];
 }
 
-export const loader = async ({ request }: Route.LoaderArgs) => {
-  const result = await db.execute("select 1");
-  console.log(result);
+export const action = async ({ request }: Route.ActionArgs) => {
+  const formData = await request.formData();
 
-  return {};
+  const email = formData.get("email");
+  const password = formData.get("password");
+
+  if (
+    !(email && typeof email === "string") ||
+    !(password && typeof password === "string")
+  ) {
+    throw new Error("Invalid email or password");
+  }
+
+  const response = await auth.api.signInEmail({
+    body: {
+      email,
+      password,
+    },
+    asResponse: true, // returns a response object instead of data
+  });
+  return response;
+};
+
+export const loader = async ({ request }: Route.LoaderArgs) => {
+  return null;
 };
 
 export default function Home({ loaderData }: Route.ComponentProps) {
