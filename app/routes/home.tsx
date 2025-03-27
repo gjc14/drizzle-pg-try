@@ -1,5 +1,6 @@
 import type { Route } from "./+types/home";
 import { Welcome } from "../welcome/welcome";
+import { db } from "~/db/db.server";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -8,6 +9,13 @@ export function meta({}: Route.MetaArgs) {
   ];
 }
 
-export default function Home() {
+export const loader = async ({ request }: Route.LoaderArgs) => {
+  const result = await db.execute("select 1");
+  console.log(result);
+
+  return {};
+};
+
+export default function Home({ loaderData }: Route.ComponentProps) {
   return <Welcome />;
 }
