@@ -1,6 +1,6 @@
+import { auth } from "~/lib/auth.server";
 import type { Route } from "./+types/home";
-import { Welcome } from "../welcome/welcome";
-import { db } from "~/db/db.server";
+import { Auth } from "./AuthComponent";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -10,12 +10,12 @@ export function meta({}: Route.MetaArgs) {
 }
 
 export const loader = async ({ request }: Route.LoaderArgs) => {
-  const result = await db.execute("select 1");
-  console.log(result);
-
-  return {};
+  const session = await auth.api.getSession(request);
+  return { session };
 };
 
 export default function Home({ loaderData }: Route.ComponentProps) {
-  return <Welcome />;
+  const { session } = loaderData;
+
+  return <Auth session={session} />;
 }
